@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "id": "cjshits",
+  "version": "${version}",
+  "name": "CJ's hits",
+  "description": "Sparschweine zerkloppen, Rechnungen zahlen – ein Incremental-Minigame als GUI-Mod.",
+  "authors": [
+    "Coljin"
+  ],
+  "contact": {},
+  "license": "ARR",
+  "icon": "assets/cjshits/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "at.coljin.cjshits.CjsHits"
+    ],
+    "client": [
+      "at.coljin.cjshits.client.CjsHitsClient"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=0.19.3",
+    "minecraft": "~26.2",
+    "java": ">=25",
+    "fabric-api": "*"
+  }
+}
