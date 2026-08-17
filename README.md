@@ -1,67 +1,288 @@
-# CJ's hits – Grundgerüst (Phase 0/1)
+# \# CJ's hits
 
-Fabric-Mod für **Minecraft 26.2**, **Java 25**. Ziel: „Bills Must Be Paid" als GUI-Minigame nachbauen.
+# 
 
-Dieses Paket ist das leere, lauffähige Fundament: Die Mod lädt, und mit der Taste **H**
-öffnet sich ein (noch leerer) Tisch-Screen. Ab hier bauen wir das Gameplay schrittweise ein.
+# \*\*Zerschlag Sparschweine. Zahl die Rechnungen. Oder geh pleite.\*\*
 
----
+# 
 
-## Ehrliche Vorab-Info
+# CJ's hits ist eine Fabric-Mod für Minecraft, die ein komplettes, in sich geschlossenes Incremental-Spiel direkt in eine Minecraft-Oberfläche bringt. Auf Tastendruck öffnet sich dein Schreibtisch: Ein maus-gezielter Hammer, ein Tisch voller Sparschweine – und ein Stapel Rechnungen, der nicht kleiner wird. Verdiene Taler, zahl deine Miete rechtzeitig, rüste auf und arbeite dich Lauf für Lauf nach oben. Und wenn gar nichts mehr geht: erklär den Bankrott, investiere dein Vermächtnis in dauerhafte Vorteile und fang stärker wieder an.
 
-Ich konnte in meiner Umgebung **nicht selbst kompilieren** (kein Zugriff auf die Gradle-/Fabric-/
-Minecraft-Server von dort). Außerdem ist 26.2 brandneu. Heißt:
+# 
 
-- Die **vier Versionswerte** in `gradle.properties` bitte einmal gegen <https://fabricmc.net/develop>
-  prüfen – vor allem `fabric_version` (dort steht der aktuelle Wert; ich hab einen Platzhalter gesetzt).
-- Falls der erste Build eine **API-Fehlermeldung** wirft (falscher Klassen-/Methodenname), ist das
-  normal bei einer frischen MC-Version. Schick mir einfach die Fehlerzeilen, dann fixen wir das in 2 Minuten.
+# \---
 
----
+# 
 
-## Voraussetzungen
+# \## Inhaltsverzeichnis
 
-- **JDK 25** installiert (z. B. Temurin 25). Prüfen: `java -version` → sollte 25 zeigen.
-- **VS Code** mit der Erweiterung *Extension Pack for Java* (und optional *Gradle for Java*).
+# 
 
-## Projekt lauffähig machen (Windows)
+# \- \[Kurzüberblick](#kurzüberblick)
 
-Der Gradle-Wrapper ist **schon dabei** – du musst also nichts installieren außer JDK 25.
+# \- \[Spielprinzip](#spielprinzip)
 
-1. Zip in einen Ordner **ohne Leerzeichen/Apostroph** im Pfad entpacken (z. B. `C:\dev\cjshits`).
-   Grund: `...\CJ's Hits` mit Leerzeichen und `'` macht in Terminals oft Ärger.
-2. Genau **einen** Wert eintragen: In `gradle.properties` die Zeile
-   `fabric_version=FABRIC_API_VERSION_FUER_26.2_EINTRAGEN` durch den echten Wert von
-   <https://fabricmc.net/develop> ersetzen. (`minecraft_version`, `loader_version` stehen schon;
-   `loom` = `1.17-SNAPSHOT` steckt in `settings.gradle` und passt.)
-3. Ordner in **VS Code** öffnen (Datei → Ordner öffnen → den `cjshits`-Ordner).
+# \- \[Features](#features)
 
-## Bauen & Testen
+# \- \[Steuerung](#steuerung)
 
-Terminal in VS Code öffnen (Terminal → Neues Terminal – ist automatisch im Projektordner). Dann:
+# \- \[Installation](#installation)
 
-- **Fertige .jar bauen:** `.\gradlew build`  → liegt danach unter `build\libs\`.
-- **Dev-Client direkt starten:** `.\gradlew runClient`
+# \- \[Systemvoraussetzungen](#systemvoraussetzungen)
 
-Der **erste** Aufruf lädt Gradle 9.5.1 + Minecraft + alle Abhängigkeiten – das dauert ein paar
-Minuten und braucht Internet. Danach geht's schnell.
+# \- \[Befehle](#befehle)
 
-Falls du das Terminal *nicht* in VS Code nutzt: erst mit `cd` in den Projektordner wechseln, z. B.
-`cd C:\dev\cjshits`, dann `.\gradlew build`.
+# \- \[Tipps für den Einstieg](#tipps-für-den-einstieg)
 
-- **Über CurseForge spielen:** dort ein **Fabric-Profil für 26.2** anlegen, **Fabric API** dazu,
-  die gebaute `.jar` aus `build\libs\` in den `mods`-Ordner legen, Welt starten, **H** drücken.
+# \- \[Hinweise](#hinweise)
 
-## Was schon drin ist
+# 
 
-- Projekt-/Build-Konfiguration (Fabric Loom, Java 25, Mojang-Mappings)
-- `CjsHits` (gemeinsamer Init) + `CjsHitsClient` (Client-Init mit Taste **H**)
-- `TischScreen` – der leere Haupt-Screen, in den als Nächstes alles reinwächst
-- Mod-Icon, Sprachdateien (de/en)
+# \---
 
-## Nächste Schritte (grob)
+# 
 
-1. Tisch-Screen mit Ausdauer-Leiste + auto-schlagendem Hammer + ersten Sparschweinen
-2. Beute/Münzen (1/5/25/100) + „Müde Hand"-Auswertung mit Zinsen
-3. Reiter Rechnungen · Skilltree · Shop · Sammlung
-4. Prestige/Legacy, dann Ausbau (großer Skilltree, eigene Features)
+# \## Kurzüberblick
+
+# 
+
+# | | |
+
+# |---|---|
+
+# | \*\*Mod-Loader\*\* | Fabric |
+
+# | \*\*Minecraft\*\* | 26.2 |
+
+# | \*\*Abhängigkeiten\*\* | Fabric API |
+
+# | \*\*Seite\*\* | Client (Menü öffnet über Tastenkürzel) |
+
+# | \*\*Währung\*\* | Taler |
+
+# | \*\*Speicherung\*\* | Automatisch, läuft über Sitzungen hinweg weiter |
+
+# 
+
+# \---
+
+# 
+
+# \## Spielprinzip
+
+# 
+
+# Ein \*\*Lauf\*\* entspricht einem Tag. Du schwingst deinen Hammer im Takt und zerschlägst so viele Sparschweine wie möglich, bis deine \*\*Ausdauer\*\* aufgebraucht ist. Aus jedem zerschlagenen Schwein purzeln Münzen, die sich in Taler verwandeln.
+
+# 
+
+# Am Ende des Laufs landest du bei der \*\*Müden Hand\*\* – deiner Abrechnung: Genauigkeit, Beute, Zinsen, offene Schulden und dein tatsächlicher Anteil. Von hier aus:
+
+# 
+
+# \- \*\*Verbesserungen\*\* kaufen (Hämmer, Gadgets, Skills),
+
+# \- die \*\*Rechnung bezahlen\*\*, bevor sie überfällig wird,
+
+# \- den nächsten Lauf starten,
+
+# \- oder alles auf \*\*Doppelt oder nix\*\* setzen.
+
+# 
+
+# Die Rechnungen werden mit jeder Zahlung teurer. Wer nicht mithält, gerät ins Minus – dann hilft nur noch der \*\*Bankrott\*\*: Dein Vermächtnis (Legacy) bleibt erhalten, du investierst es in dauerhafte Ringe und Armbänder und startest gestärkt in ein neues Leben.
+
+# 
+
+# \---
+
+# 
+
+# \## Features
+
+# 
+
+# \### Acht Sparschwein-Typen mit eigenem Verhalten
+
+# \- \*\*Normalito\*\* – der Klassiker, ruhig und berechenbar.
+
+# \- \*\*Tourist\*\* – wandert unentwegt über den Tisch und ist schwerer zu treffen.
+
+# \- \*\*Woody\*\* – hält viel aus, bringt aber gut Taler.
+
+# \- \*\*Piñata\*\* – reines Glücksspiel: mal fällt fast nichts raus, mal ein ganzer Jackpot.
+
+# \- \*\*El Loco\*\* – schnell und unberechenbar.
+
+# \- \*\*Taurus\*\* – der faule Stier: steht meist still, stellt beim Zerschlagen Ausdauer zurück – triffst du ihn aber, ohne ihn zu zerlegen, sieht er rot und stürmt los.
+
+# \- \*\*Dieb\*\* – flieht vor deinem Hammer, ist dafür richtig wertvoll.
+
+# \- \*\*Radioaktiv\*\* – extrem selten, dafür ein riesiger Zahltag.
+
+# 
+
+# \### Waffen \& Ausrüstung
+
+# \- \*\*7 Hämmer\*\* mit klaren Rollen – von ausgewogen über schnell-präzise und schwer-flächig bis zum Crit- und Gold-Hammer. Schwere Hämmer schlagen härter, kosten aber mehr Ausdauer pro Schlag.
+
+# \- \*\*6 Gadgets\*\* mit dauerhaften Effekten – darunter der \*\*Spielautomat\*\* mit echter Jackpot-Chance.
+
+# 
+
+# \### Progression
+
+# \- \*\*Skilltree mit 33 Knoten\*\* über acht Zweige (Tempo, Schaden, Crit, Radius, Ausdauer, Regeneration, Glück, Geldwert, Zinsen) plus die Spezialfähigkeiten \*\*Steinregen\*\* und \*\*Elektrohammer\*\*. Voll zoom- und verschiebbar.
+
+# \- \*\*Meisterschaft\*\* – jedes zerschlagene Schwein bringt dich einer höheren Stufe seiner Art näher.
+
+# \- \*\*Sammlung\*\* seltener Spezialmünzen, die als Belohnung droppen und über den Bankrott hinaus bleiben.
+
+# 
+
+# \### Wirtschaft mit Biss
+
+# \- Eskalierende \*\*Rechnungen\*\* mit fester Fälligkeit – wer überzieht, zahlt ein stetig steigendes Inkasso.
+
+# \- \*\*Big Toni\*\* vergibt Kredite, wenn's eng wird – zu seinen Konditionen.
+
+# \- \*\*Zinsen\*\* auf dein Bankguthaben, freischaltbar über Perks und Skills.
+
+# \- \*\*Perk-Auswahl\*\* (1 aus 3) als Belohnung für jede bezahlte Rechnung.
+
+# 
+
+# \### Prestige
+
+# \- \*\*Bankrott\*\* als bewusster Neustart: Legacy, Ringe, Armbänder und deine Sammlung bleiben – der Rest wird zurückgesetzt, du beginnst stärker.
+
+# 
+
+# \### Präsentation
+
+# \- Handgezeichnete Pixel-Optik: Schreibtisch-Szene mit Deko, geshadeten Charakter-Sparschweinen und stimmigen Icons.
+
+# \- Flüssige, interpolierte Animationen: fliegende Splitter in der Farbe des Schweins, Münzen, die auf dem Tisch landen und zum Münzstapel am Fensterrand wandern, ein weicher Hammer-Schwung und eine Münzwurf-Animation bei „Doppelt oder nix".
+
+# \- Passt sich der GUI-Skalierung an und bleibt auf jeder Auflösung lesbar.
+
+# 
+
+# \---
+
+# 
+
+# \## Steuerung
+
+# 
+
+# | Taste / Eingabe | Aktion |
+
+# |---|---|
+
+# | \*\*H\*\* | Öffnet CJ's hits |
+
+# | \*\*Maus bewegen\*\* | Hammer zielen |
+
+# | Die restliche Bedienung läuft komplett über die Menü-Schaltflächen. | |
+
+# 
+
+# Das Tastenkürzel lässt sich unter \*\*Optionen → Steuerung → „CJ's hits"\*\* frei belegen.
+
+# 
+
+# \---
+
+# 
+
+# \## Installation
+
+# 
+
+# 1\. Installiere den \*\*Fabric Loader\*\* für Minecraft 26.2.
+
+# 2\. Lade die \*\*Fabric API\*\* herunter und lege sie in deinen `mods`-Ordner.
+
+# 3\. Lege die `cjshits`-`.jar` ebenfalls in den `mods`-Ordner.
+
+# 4\. Starte Minecraft mit dem Fabric-Profil und drücke im Spiel \*\*H\*\*.
+
+# 
+
+# Deinen `mods`-Ordner findest du über den Minecraft-Launcher unter \*Installationen → Ordner öffnen → `mods`\*.
+
+# 
+
+# \---
+
+# 
+
+# \## Systemvoraussetzungen
+
+# 
+
+# \- \*\*Minecraft\*\* 26.2
+
+# \- \*\*Fabric Loader\*\*
+
+# \- \*\*Fabric API\*\*
+
+# \- \*\*Java 25\*\* oder neuer
+
+# 
+
+# \---
+
+# 
+
+# \## Befehle
+
+# 
+
+# | Befehl | Wirkung |
+
+# |---|---|
+
+# | `/cjshits reset` | Setzt den gesamten Spielstand zurück – inklusive Legacy und Sammlung. |
+
+# 
+
+# > Im Einzelspieler sind Befehle nur bei aktivierten Cheats verfügbar.
+
+# 
+
+# \---
+
+# 
+
+# \## Tipps für den Einstieg
+
+# 
+
+# \- \*\*Ziel wirklich auf ein Schwein.\*\* Nur ein echter Treffer erwischt auch die umliegenden Schweine im Radius. Ein Schlag daneben landet nur auf dem Tisch.
+
+# \- \*\*Zahl deine Rechnung rechtzeitig.\*\* Das Inkasso wird jeden überfälligen Tag teurer.
+
+# \- \*\*Meistere deine Hammer-Wahl.\*\* Ein leichter Hammer erlaubt viele Schläge, ein schwerer haut hart rein – leert aber die Ausdauer schneller.
+
+# \- \*\*Halte nach Taurus, Dieb und Radioaktiv Ausschau.\*\* Sie sind seltener, aber jeder Treffer zählt doppelt.
+
+# \- \*\*Bankrott ist kein Scheitern, sondern ein Werkzeug.\*\* Sammle genug Legacy, investiere klug in Ringe und starte stärker durch.
+
+# 
+
+# \---
+
+# 
+
+# \## Hinweise
+
+# 
+
+# CJ's hits ist ein eigenständiges Fan-Projekt und steht in keiner Verbindung zu den Urhebern eventueller Vorbilder. Alle Grafiken, Texte und der Code wurden für diese Mod eigens erstellt.
+
+# 
+
+# \*Bei der Entwicklung und Qualitätssicherung dieser Mod kam KI als unterstützendes Hilfs- und Prüfwerkzeug zum Einsatz.\*
+
